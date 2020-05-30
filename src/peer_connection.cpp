@@ -1137,6 +1137,7 @@ namespace libtorrent {
 #ifndef TORRENT_DISABLE_EXTENSIONS
 		if (bytes_payload)
 		{
+			ONE_INVARIANT_CHECK;
 			for (auto const& e : m_extensions)
 			{
 				e->sent_payload(bytes_payload);
@@ -1193,6 +1194,7 @@ namespace libtorrent {
 //		INVARIANT_CHECK;
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			e->on_piece_pass(index);
@@ -1211,6 +1213,7 @@ namespace libtorrent {
 		TORRENT_UNUSED(single_peer);
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			e->on_piece_failed(index);
@@ -1443,6 +1446,7 @@ namespace libtorrent {
 		INVARIANT_CHECK;
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_choke()) return;
@@ -1522,6 +1526,7 @@ namespace libtorrent {
 #endif
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_reject(r)) return;
@@ -1581,7 +1586,7 @@ namespace libtorrent {
 				p.abort_download(b.block, peer_info_struct());
 			}
 #if TORRENT_USE_INVARIANT_CHECKS
-			check_invariant();
+			ONE_INVARIANT_CHECK;
 #endif
 		}
 #ifndef TORRENT_DISABLE_LOGGING
@@ -1634,6 +1639,7 @@ namespace libtorrent {
 		if (!t) return;
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_suggest(index)) return;
@@ -1695,6 +1701,7 @@ namespace libtorrent {
 		TORRENT_ASSERT(t);
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_unchoke()) return;
@@ -1732,6 +1739,7 @@ namespace libtorrent {
 		TORRENT_ASSERT(t);
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_interested()) return;
@@ -1826,6 +1834,7 @@ namespace libtorrent {
 		INVARIANT_CHECK;
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_not_interested()) return;
@@ -1885,6 +1894,7 @@ namespace libtorrent {
 		TORRENT_ASSERT(t);
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_have(index)) return;
@@ -2069,6 +2079,7 @@ namespace libtorrent {
 		}
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_dont_have(index)) return;
@@ -2129,6 +2140,7 @@ namespace libtorrent {
 		TORRENT_ASSERT(t);
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_bitfield(bits)) return;
@@ -2297,6 +2309,8 @@ namespace libtorrent {
 	{
 		TORRENT_ASSERT(is_single_thread());
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		// we cannot check the invariant here, because this function is called
+		// as part of the invariant check, leading to infinite recursion
 		for (auto const& e : m_extensions)
 		{
 			if (!e->can_disconnect(ec)) return false;
@@ -2373,6 +2387,7 @@ namespace libtorrent {
 		if (is_disconnecting()) return;
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_request(r)) return;
@@ -2605,7 +2620,7 @@ namespace libtorrent {
 		t->state_updated();
 
 #if TORRENT_USE_INVARIANT_CHECKS
-		check_invariant();
+		ONE_INVARIANT_CHECK;
 #endif
 	}
 
@@ -2613,7 +2628,7 @@ namespace libtorrent {
 	{
 		TORRENT_ASSERT(is_single_thread());
 #if TORRENT_USE_INVARIANT_CHECKS
-		check_invariant();
+		ONE_INVARIANT_CHECK;
 #endif
 #if TORRENT_USE_ASSERTS
 		span<char const> recv_buffer = m_recv_buffer.get();
@@ -2750,6 +2765,7 @@ namespace libtorrent {
 		update_desired_queue_size();
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_piece(p, {data, p.length}))
@@ -2767,7 +2783,7 @@ namespace libtorrent {
 #if TORRENT_USE_INVARIANT_CHECKS
 		check_postcondition post_checker_(t);
 #if defined TORRENT_EXPENSIVE_INVARIANT_CHECKS
-		t->check_invariant();
+		t->ONE_INVARIANT_CHECK;
 #endif
 #endif
 
@@ -2846,7 +2862,7 @@ namespace libtorrent {
 			// download queue, which is why we need to add the bytes back.
 			m_outstanding_bytes += p.length;
 #if TORRENT_USE_INVARIANT_CHECKS
-			check_invariant();
+			ONE_INVARIANT_CHECK;
 #endif
 			return;
 		}
@@ -3020,7 +3036,7 @@ namespace libtorrent {
 
 #if TORRENT_USE_INVARIANT_CHECKS \
 	&& defined TORRENT_EXPENSIVE_INVARIANT_CHECKS
-		t->check_invariant();
+		t->ONE_INVARIANT_CHECK;
 #endif
 
 #if TORRENT_USE_ASSERTS
@@ -3200,6 +3216,7 @@ namespace libtorrent {
 		INVARIANT_CHECK;
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_cancel(r)) return;
@@ -3281,6 +3298,7 @@ namespace libtorrent {
 #endif
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_have_all()) return;
@@ -3355,6 +3373,7 @@ namespace libtorrent {
 		TORRENT_ASSERT(t);
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_have_none()) return;
@@ -3399,6 +3418,7 @@ namespace libtorrent {
 #endif
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			if (e->on_allowed_fast(index)) return;
@@ -3997,7 +4017,7 @@ namespace libtorrent {
 			m_download_queue.push_back(block);
 			m_outstanding_bytes += bs;
 #if TORRENT_USE_INVARIANT_CHECKS
-			check_invariant();
+			ONE_INVARIANT_CHECK;
 #endif
 
 			// if we are requesting large blocks, merge the smaller
@@ -4034,7 +4054,7 @@ namespace libtorrent {
 					r.length += bs;
 					m_outstanding_bytes += bs;
 #if TORRENT_USE_INVARIANT_CHECKS
-					check_invariant();
+					ONE_INVARIANT_CHECK;
 #endif
 				}
 
@@ -4051,6 +4071,7 @@ namespace libtorrent {
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
 			bool handled = false;
+			ONE_INVARIANT_CHECK;
 			for (auto const& e : m_extensions)
 			{
 				handled = e->write_request(r);
@@ -4350,6 +4371,7 @@ namespace libtorrent {
 		if (t) handle = t->get_handle();
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			e->on_disconnect(ec);
@@ -4419,7 +4441,7 @@ namespace libtorrent {
 			m_queued_time_critical = 0;
 
 #if TORRENT_USE_INVARIANT_CHECKS
-			try { check_invariant(); } catch (std::exception const&) {}
+			try { ONE_INVARIANT_CHECK; } catch (std::exception const&) {}
 #endif
 			t->remove_peer(self());
 
@@ -4824,6 +4846,7 @@ namespace libtorrent {
 		if (is_disconnecting()) return;
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& e : m_extensions)
 		{
 			e->tick();
@@ -5442,7 +5465,7 @@ namespace libtorrent {
 		m_channel_state[channel] &= ~peer_info::bw_limit;
 
 #if TORRENT_USE_INVARIANT_CHECKS
-		check_invariant();
+		ONE_INVARIANT_CHECK;
 #endif
 
 		if (is_disconnecting()) return;
@@ -6179,6 +6202,7 @@ namespace libtorrent {
 #endif
 
 #ifndef TORRENT_DISABLE_EXTENSIONS
+		ONE_INVARIANT_CHECK;
 		for (auto const& ext : m_extensions)
 		{
 			ext->on_connected();
@@ -6317,7 +6341,7 @@ namespace libtorrent {
 		TORRENT_ASSERT(m_queued_time_critical <= int(m_request_queue.size()));
 		TORRENT_ASSERT(m_accept_fast.size() == m_accept_fast_piece_cnt.size());
 
-		m_recv_buffer.check_invariant();
+		m_recv_buffer.ONE_INVARIANT_CHECK;
 
 		for (int i = 0; i < 2; ++i)
 		{
